@@ -67,8 +67,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build with Gradle (armeabi-v7a only)
-        run: ./gradlew clean assembleRelease -PabiFilters=armeabi-v7a
+      - name: Patch build.gradle.kts to target armeabi-v7a only
+        run: |
+          sed -i 's/abiFilters("arm64-v8a", "x86_64")/abiFilters("armeabi-v7a")/' build.gradle.kts
+          sed -i 's/abiFilters += listOf("arm64-v8a", "x86_64")/abiFilters += listOf("armeabi-v7a")/' build.gradle.kts
+          grep -n "abiFilters" build.gradle.kts
+
+      - name: Build with Gradle
+        run: ./gradlew clean assembleRelease
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v5
